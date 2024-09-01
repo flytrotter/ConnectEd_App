@@ -2,6 +2,7 @@ import "package:app_test/components/my_button.dart";
 import "package:app_test/components/textfield.dart";
 import "package:cloud_firestore/cloud_firestore.dart";
 import "package:firebase_auth/firebase_auth.dart";
+import "package:firebase_messaging/firebase_messaging.dart";
 import "package:flutter/material.dart";
 
 class LoginPage extends StatefulWidget {
@@ -13,7 +14,6 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
-
   final passwordController = TextEditingController();
 
   void login() async {
@@ -40,6 +40,15 @@ class _LoginPageState extends State<LoginPage> {
             .doc(user.uid)
             .get();
         String role = userDoc.get('role');
+
+        // Get the FCM token and store it in Firestore
+        FirebaseMessaging messaging = FirebaseMessaging.instance;
+        String? token = await messaging.getToken();
+        if (token != null) {
+          FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+            'fcmToken': token,
+          }, SetOptions(merge: true));
+        }
 
         // Navigate based on the role
         if (role == 'teacher') {
