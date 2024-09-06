@@ -28,10 +28,10 @@ class _SaveButtonState extends State<SaveButton> {
           .doc(user.uid)
           .get();
 
-      List<dynamic> savedUsers = userDoc['saved_users'] ?? [];
-      setState(() {
-        isSaved = savedUsers.contains(widget.userId);
-      });
+      // List<dynamic> savedUsers = userDoc['saved_users'] ?? [];
+      // setState(() {
+      //   isSaved = savedUsers.contains(widget.userId);
+      // });
     }
   }
 

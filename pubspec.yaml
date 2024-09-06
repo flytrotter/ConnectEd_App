@@ -33,6 +33,11 @@ dependencies:
   # table_calendar: ^3.0.3
   email_validator: ^2.0.1
   file_picker: ^5.5.0
+  share_plus: ^10.0.0
+  path_provider: ^2.1.4
+  pdf: ^3.11.1
+  url_launcher: ^6.0.20
+
 
 
 

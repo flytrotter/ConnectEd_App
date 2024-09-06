@@ -44,9 +44,9 @@ class _EditMeetingDetailsPageState extends State<EditMeetingDetailsPage> {
       meetingDetails = meetingDoc.data();
       setState(() {
         industryName = meetingDetails!['industryName'];
-        emailController.text = meetingDetails!['email'];
-        outlineController.text = meetingDetails!['outline'];
-        noteController.text = meetingDetails!['tutorNote'];
+        emailController.text = meetingDetails!['email'] ?? '';
+        outlineController.text = meetingDetails!['outline'] ?? '';
+        noteController.text = meetingDetails!['tutorNote'] ?? '';
         selectedFile = meetingDetails!['resources'];
         selectedSlot = {
           'date': meetingDetails!['date'],

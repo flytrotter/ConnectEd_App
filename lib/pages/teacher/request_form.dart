@@ -1,4 +1,6 @@
 import 'package:app_test/components/get_current_id.dart';
+import 'package:app_test/components/get_current_name.dart';
+import 'package:app_test/components/uid_to_name.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,7 +18,23 @@ class SchedulingPage extends StatefulWidget {
 class _SchedulingPageState extends State<SchedulingPage> {
   List<MeetingSlot> selectedSlots = [];
   TextEditingController noteController = TextEditingController();
+  TextEditingController meetingInformationController = TextEditingController();
+
   String? userId = getCurrentUserId();
+  String userName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    String name = await getCurrentUserFullName();
+    setState(() {
+      userName = name;
+    });
+  }
 
   Future<void> _addNewSlot() async {
     if (selectedSlots.length >= 20) {
@@ -123,9 +141,11 @@ class _SchedulingPageState extends State<SchedulingPage> {
 
     FirebaseFirestore.instance.collection('meeting_requests').add({
       'senderId': userId, // Replace with the actual current user's ID
+      'senderName': userName,
       'receiverId':
           widget.industryId, // The ID of the tutor receiving the request
       'times': selectedSlots.map((slot) => slot.toMap()).toList(),
+      'meet_info': meetingInformationController.text,
       'note': noteController.text,
       'status': 'pending',
     }).then((_) {
@@ -179,6 +199,15 @@ class _SchedulingPageState extends State<SchedulingPage> {
                       },
                     ),
             ),
+            TextField(
+              controller: meetingInformationController,
+              decoration: InputDecoration(
+                hintText: 'Paste Google Meet or Zoom Information',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
+            ),
+            SizedBox(height: 16.0),
             TextField(
               controller: noteController,
               decoration: InputDecoration(

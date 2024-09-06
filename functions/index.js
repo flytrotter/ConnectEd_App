@@ -1,7 +1,12 @@
+/* eslint-disable quotes */
+/* eslint-disable indent */
+/* eslint-disable object-curly-spacing */
+/* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const nodemailer = require("nodemailer");
+const {DateTime} = require("luxon");
 
 admin.initializeApp();
 
@@ -9,8 +14,8 @@ admin.initializeApp();
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "connected.app.contact@gmail.com", // Replace with your email
-    pass: "lbuw mhjo atjr annx", // Replace with your app password
+    user: "connected.app.contact@gmail.com",
+    pass: "lbuw mhjo atjr annx",
   },
 });
 
@@ -86,12 +91,35 @@ exports.sendScheduledMeetingNotification = functions.firestore
       const data = snap.data();
       const teacherEmail = data.teacherEmail;
       const industryEmail = data.industryEmail;
+      const meetLink = data.meet_info;
 
       try {
-        const startDateTime = formatDateForCalendar(data.date, data.start_time);
-        const endDateTime = formatDateForCalendar(data.date, data.end_time);
+        // eslint-disable-next-line no-unused-vars
+        const startDateTime2 = formatDateForCalendar(data.date, data.start_time);
+        // eslint-disable-next-line no-unused-vars
+        const endDateTime2 = formatDateForCalendar(data.date, data.end_time);
 
-        const calendarLink = `https://www.google.com/calendar/render?action=TEMPLATE&text=Meeting%20with%20${data.teacherName}&dates=${startDateTime}/${endDateTime}&details=Meeting%20with%20${data.teacherName}%20to%20discuss%20${data.outline}&location=&trp=false`;
+        const humanReadableDate = DateTime.fromISO(data.date, {zone: "America/New_York"})
+        .toFormat("MMMM d, yyyy"); // Properly formats the date to be human-readable
+
+    // Parsing and adjusting start time
+    const startTime = DateTime.fromISO(data.date, {zone: "America/New_York"}) // Keep the date in the right time zone
+        .set({
+            hour: parseInt(data.start_time.split(':')[0]),
+            minute: parseInt(data.start_time.split(':')[1]),
+        }) // Set the correct hours and minutes from the input time
+        .toFormat("h:mm a"); // Formats to 12-hour time (AM/PM)
+
+    // Parsing and adjusting end time
+    const endTime = DateTime.fromISO(data.date, {zone: "America/New_York"}) // Keep the date in the right time zone
+        .set({
+            hour: parseInt(data.end_time.split(':')[0]),
+            minute: parseInt(data.end_time.split(':')[1]),
+        }) // Set the correct hours and minutes from the input time
+        .toFormat("h:mm a"); // Formats to 12-hour time (AM/PM)
+
+
+        const calendarLink = `https://www.google.com/calendar/render?action=TEMPLATE&text=Meeting%20with%20${data.teacherName}&dates=${startDateTime2}/${endDateTime2}&details=Meeting%20with%20${data.teacherName}%20to%20discuss%20${data.outline}&location=&trp=false`;
 
         const mailOptions = {
           from: "\"ConnectEd\" <connected.app.contact@gmail.com>",
@@ -110,12 +138,16 @@ exports.sendScheduledMeetingNotification = functions.firestore
                       ">Meeting Scheduled with ${data.industryName}</h2>
                       <p style="font-size: 16px; line-height: 1.6;">
                         <strong>Date and Time:</strong> 
-                        ${data.date} from ${data.start_time}
-                         to ${data.end_time}
+                        ${humanReadableDate} from ${startTime}
+                         to ${endTime}
                       </p>
                       <p style="font-size: 16px; line-height: 1.6;">
                         <strong>Outline:</strong> ${data.outline}
                       </p>
+                      <p style="font-size: 16px; line-height: 1.6;">
+                        <strong>Meet Link:</strong> ${meetLink}
+                      </p>
+
                       <div style="text-align: center; margin: 20px 0;">
                         <a href="${calendarLink}" 
                         style="background-color: #f39c12; 
@@ -136,32 +168,148 @@ exports.sendScheduledMeetingNotification = functions.firestore
 
         await transporter.sendMail(mailOptions);
         console.log("Scheduled meeting email sent successfully");
+
+        // Schedule reminder emails
+        scheduleReminderEmails(data, teacherEmail, industryEmail);
       } catch (error) {
         console.error("Error sending scheduled meeting email:", error);
       }
     });
 
+function scheduleReminderEmails(data, teacherEmail, industryEmail) {
+  console.log("Scheduling reminder emails...");
+  const meetingDateTime = DateTime.fromISO(data.date,
+      {zone: "America/New_York"});
+  console.log("Meeting DateTime (EST):", meetingDateTime.toString());
+
+  const reminders = [
+    {label: "1 week", time: 7 * 24 * 60 * 60 * 1000},
+    {label: "1 day", time: 24 * 60 * 60 * 1000},
+    {label: "2 hours", time: 2 * 60 * 60 * 1000},
+    {label: "15 minutes", time: 15 * 60 * 1000},
+    {label: "Start", time: 0},
+  ];
+
+  const now = DateTime.now().setZone("America/New_York");
+  console.log("Current DateTime (EST):", now.toString());
+
+
+  reminders.forEach((reminder) => {
+    const reminderTime = meetingDateTime.minus({milliseconds: reminder.time});
+    console.log(`Reminder for ${reminder.label}
+       at (EST):`, reminderTime.toString());
+
+    if (reminderTime > now) {
+      const delay = reminderTime.diff(now).as("milliseconds");
+      console.log(`Scheduling reminder for ${reminder.label} in ${delay} ms`);
+
+      setTimeout(() => {
+        sendReminderEmail(reminder.label, teacherEmail, industryEmail, data);
+      }, delay);
+    } else {
+      console.log(`Skipping reminder 
+        for ${reminder.label} - Time has already passed.`);
+    }
+  });
+}
+
+function sendReminderEmail(label, teacherEmail, industryEmail, data) {
+  console.log(`Sending reminder email for ${label}...`);
+
+  const meetLink = data.meet_info;
+  const humanReadableDate = DateTime.fromISO(data.date, {zone: "America/New_York"}).toFormat("MMMM d'th', yyyy");
+  const startTime = DateTime.fromISO(data.date + "T" + data.start_time, {zone: "America/New_York"}).toFormat("h:mm a");
+  const endTime = DateTime.fromISO(data.date + "T" + data.end_time, {zone: "America/New_York"}).toFormat("h:mm a");
+
+  const mailOptions = {
+    from: "\"ConnectEd\" <connected.app.contact@gmail.com>",
+    to: `${teacherEmail}, ${industryEmail}`,
+    subject: `🔔 Reminder: Meeting with ${data.teacherName} in ${label} 🔔 `,
+    html: `
+            <div style="background-color: #f9f7cf; padding: 20px; 
+            font-family: Arial, sans-serif; color: #333;">
+              <div style="text-align: center; margin-bottom: 20px;">
+                <img src="https://your-logo-url.com/logo.png" alt="ConnectEd Logo" style="width: 100px; height: auto;" />
+              </div>
+              <div style="background-color: #fff; padding: 20px;
+               border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                <h2 style="color: #2c3e50;
+                ">🔔 Reminder: Meeting with ${data.teacherName}</h2>
+                <p style="font-size: 16px; 
+                line-height: 1.6;"><strong>Date and Time:</strong> 
+                ${humanReadableDate} from ${startTime} to ${endTime}</p>
+                <p style="font-size: 16px; line-height: 1.6;
+                "><strong>Outline:</strong> ${data.outline}</p>
+                <p style="font-size: 16px; line-height: 1.6;
+                "><strong>Meet Link:</strong> ${meetLink}</p>
+                <div style="text-align: center; 
+                margin-top: 20px; font-size: 12px; color: #999;">
+                  <p>© 2024 ConnectEd. All rights reserved.</p>
+                  <p>If you did not request this email, please ignore it.</p>
+                </div>
+              </div>
+            </div>
+          `,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return console.error("Error sending reminder email:", error);
+    }
+    console.log(`Reminder email for ${label} sent: ${info.response}`);
+  });
+}
 
 function formatDateForCalendar(date, time) {
   try {
-    // Parse the date string into a Date object
-    const dateObject = new Date(date);
-
-    // Extract hours and minutes from the time string
+    const dateObject = DateTime.fromISO(date, {zone: "America/New_York"});
     const [hour, minute] = time.split(":");
+    const finalDateTime = dateObject.set({hour: parseInt(hour),
+      minute: parseInt(minute)});
 
-    // Set the hours and minutes on the Date object
-    dateObject.setUTCHours(hour, minute);
-
-    // Check if the date is valid
-    if (isNaN(dateObject.getTime())) {
+    if (!finalDateTime.isValid) {
       throw new Error("Invalid date or time value");
     }
 
-    // Return the formatted string for Google Calendar
-    return dateObject.toISOString().replace(/-|:|\.\d+/g, "");
+    return finalDateTime.toUTC().toISO().replace(/-|:|\.\d+/g, "");
   } catch (error) {
     console.error("Error formatting date for Google Calendar:", error);
     throw error;
   }
 }
+
+// exports.updateVolunteerHours = functions.firestore
+//     .document("scheduled_meetings/{meetingId}")
+//     .onCreate(async (change, context) => {
+//       const newValue = change.after.data();
+//       const prevValue = change.before.data();
+
+//       // Parse the meeting start and end times from the Firestore document
+//       const meetingDate = new Date(newValue.date);
+//       const startTimeParts = newValue.start_time.split(":");
+//       const endTimeParts = newValue.end_time.split(":");
+
+//       const startTime = new Date(meetingDate);
+//       startTime.setHours(parseInt(startTimeParts[0], 10), parseInt(startTimeParts[1], 10));
+
+//       const endTime = new Date(meetingDate);
+//       endTime.setHours(parseInt(endTimeParts[0], 10), parseInt(endTimeParts[1], 10));
+
+//       // Check if the meeting has ended
+//       const now = new Date();
+//       if (now >= endTime && prevValue.date === newValue.date) {
+//         const industryUserId = newValue.industryId;
+
+//         // Calculate the duration of the meeting in hours
+//         const duration = (endTime - startTime) / (1000 * 60 * 60); // hours
+
+//         // Update the user's volunteer hours
+//         await admin.firestore().collection("users").doc(industryUserId).update({
+//           volunteer_hours: admin.firestore.FieldValue.increment(duration),
+//         });
+
+//         console.log(`Updated volunteer hours for user ${industryUserId} by ${duration} hours.`);
+//       } else {
+//         console.log("Meeting has not ended yet, no update to volunteer hours.");
+//       }
+//     });

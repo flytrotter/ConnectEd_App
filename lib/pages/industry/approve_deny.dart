@@ -1,3 +1,4 @@
+import 'package:app_test/components/uid_to_email.dart';
 import 'package:app_test/components/uid_to_name.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -20,6 +21,7 @@ class ApproveOrDenyPage extends StatefulWidget {
 class _ApproveOrDenyPageState extends State<ApproveOrDenyPage> {
   String? senderName;
   String? note;
+  String? meet_link;
   List<Map<String, dynamic>> availableSlots = [];
   Map<String, dynamic>? selectedSlot;
   TextEditingController tutorNoteController = TextEditingController();
@@ -28,17 +30,26 @@ class _ApproveOrDenyPageState extends State<ApproveOrDenyPage> {
   String? currentName;
   String? selectedFile; // Store the file name
   bool isEmailValid = true; // For email validation
+  String? teacherEmail = '';
 
   @override
   void initState() {
     super.initState();
     _fetchRequestDetails();
+    _loadTeacherEmail();
     _fetchTutorName();
   }
 
   Future<void> _fetchTutorName() async {
     currentName = await getFullName(widget.userId);
     setState(() {});
+  }
+
+  Future<void> _loadTeacherEmail() async {
+    String email = await getEmail(widget.teacherId);
+    setState(() {
+      teacherEmail = email;
+    });
   }
 
   Future<void> _fetchRequestDetails() async {
@@ -50,6 +61,8 @@ class _ApproveOrDenyPageState extends State<ApproveOrDenyPage> {
     if (requestDoc.exists) {
       final requestData = requestDoc.data()!;
       final senderId = requestData['senderId'];
+      final teacherNote = requestData['note'];
+      final link = requestData['meet_info'];
 
       // Fetch the sender's full name
       final name = await getFullName(senderId);
@@ -57,6 +70,7 @@ class _ApproveOrDenyPageState extends State<ApproveOrDenyPage> {
       setState(() {
         senderName = name;
         note = requestData['note'];
+        meet_link = requestData['meet_info'];
         availableSlots = List<Map<String, dynamic>>.from(requestData['times']);
       });
     }
@@ -89,15 +103,18 @@ class _ApproveOrDenyPageState extends State<ApproveOrDenyPage> {
         'industryName': currentName,
         'teacherId': widget.teacherId,
         'teacherName': senderName,
+        'teacherNote': note,
         'date': selectedSlot!['date'],
         'start_time': selectedSlot!['start_time'],
         'end_time': selectedSlot!['end_time'],
         'tutorNote': tutorNoteController.text,
-        'email': emailController.text, // Store the email
+        'industryEmail': emailController.text,
+        'teacherEmail': teacherEmail, // Store the email
         'outline': outlineController.text, // Store the outline
         'resources': selectedFile, // Store the selected file name
         'scheduledAt': Timestamp.now(),
         'requestId': widget.requestId,
+        'meet_info': meet_link,
       });
 
       await FirebaseFirestore.instance

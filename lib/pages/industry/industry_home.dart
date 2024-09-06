@@ -2,8 +2,11 @@ import 'package:app_test/components/get_current_id.dart';
 import 'package:app_test/components/uid_to_name.dart';
 import 'package:app_test/pages/industry/approve_deny.dart';
 import 'package:app_test/pages/industry/edit_meeting_details.dart';
+import 'package:app_test/pages/industry/industry_profile.dart';
+import 'package:app_test/pages/industry/volunteer_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:intl/intl.dart'; // For formatting date and time
 
 class IndustryHome extends StatelessWidget {
@@ -14,7 +17,15 @@ class IndustryHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: Text('Tutor Home Page'),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/login');
+                },
+                icon: Icon(Icons.logout)),
+          ],
         ),
         body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
@@ -94,8 +105,7 @@ class IndustryHome extends StatelessWidget {
                                   child: ListTile(
                                     title: Text(teacherName),
                                     subtitle: Text(
-                                      'Scheduled on: ${DateFormat('MMMM d, yyyy').format((meeting['scheduledAt'] as Timestamp).toDate())} '
-                                      'from ${meeting['start_time']} to ${meeting['end_time']}',
+                                      'Scheduled on: ${_formatDate(meeting['date'], meeting['start_time'], meeting['end_time'])}', // Refactored to handle correct date and time formatting
                                     ),
                                     trailing: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -208,6 +218,89 @@ class IndustryHome extends StatelessWidget {
               },
             );
           },
-        ));
+        ),
+        //INDUSTRY NAVIGATOR
+        bottomNavigationBar: Container(
+            color: Colors.black,
+            child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20),
+                child: GNav(
+                    backgroundColor: Colors.black,
+                    color: Colors.white,
+                    activeColor: Colors.white,
+                    tabBackgroundColor: Colors.grey.shade800,
+                    padding: EdgeInsets.all(16),
+                    gap: 8,
+                    tabs: [
+                      GButton(icon: Icons.home, text: 'Home'),
+                      GButton(icon: Icons.settings, text: 'Settings'),
+                      GButton(
+                        icon: Icons.person,
+                        text: 'Profile Details',
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => IndustryProfilePage()),
+                          ); // Navigator.pushReplacementNamed(context, '/savedPage');
+                        },
+                      ),
+                      GButton(
+                        icon: Icons.punch_clock,
+                        text: 'Volunteer hours',
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    VolunteerPage(industryUserId: userId)),
+                          ); // Navigator.pushReplacementNamed(context, '/savedPage');
+                        },
+                      ),
+                      GButton(
+                          icon: Icons.event,
+                          text: 'Schedule',
+                          onPressed: () {
+                            // Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //         builder: (context) => UpcomingMeetingsPage(
+                            //             // Pass the tutor's name]))
+                            //             )));
+                          })
+                    ]))));
   }
+}
+
+String _formatDate(String date, String startTime, String endTime) {
+  // Step 1: Parse the date string (assumed to be in the format '2024-09-06T00:00:00.000') into a DateTime object
+  DateTime parsedDate = DateTime.parse(date);
+
+  // Step 2: Parse the start time and end time into DateTime objects
+  // This assumes that the start_time and end_time are in 24-hour (military) time format like '14:10' and '14:40'
+  // For this, we'll split the time strings and combine them with the parsedDate
+  List<String> startTimeParts = startTime.split(":");
+  List<String> endTimeParts = endTime.split(":");
+
+  // Create DateTime objects for the start and end times
+  DateTime startDateTime = DateTime(
+      parsedDate.year,
+      parsedDate.month,
+      parsedDate.day,
+      int.parse(startTimeParts[0]),
+      int.parse(startTimeParts[1]));
+  DateTime endDateTime = DateTime(parsedDate.year, parsedDate.month,
+      parsedDate.day, int.parse(endTimeParts[0]), int.parse(endTimeParts[1]));
+
+  // Step 3: Format the date to a more human-readable format, e.g., 'September 6, 2024'
+  String formattedDate = DateFormat('MMMM d, yyyy').format(parsedDate);
+
+  // Step 4: Format the start and end times from 24-hour format to 12-hour format, e.g., '2:10 PM'
+  String formattedStartTime = DateFormat('h:mm a')
+      .format(startDateTime); // 'h:mm a' converts to 12-hour AM/PM format
+  String formattedEndTime = DateFormat('h:mm a').format(endDateTime);
+
+  // Step 5: Return the combined formatted date and times as a string
+  return '$formattedDate from $formattedStartTime to $formattedEndTime';
 }

@@ -1,5 +1,6 @@
 import 'package:app_test/pages/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -100,6 +101,7 @@ class _SignUpPageState extends State<SignUpPage> {
             'experience': experienceController.text,
             // 'expertise': expertiseController.text,
             'interests': selectedInterests,
+            'volunteer_hours': 0
           });
         }
 
@@ -107,6 +109,18 @@ class _SignUpPageState extends State<SignUpPage> {
             .collection('users')
             .doc(userCredential.user!.uid)
             .set(userData);
+
+        // Get the FCM token and store it in Firestore
+        FirebaseMessaging messaging = FirebaseMessaging.instance;
+        String? token = await messaging.getToken();
+        if (token != null) {
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .set({
+            'fcmToken': token,
+          }, SetOptions(merge: true));
+        }
 
         if (isTeacher) {
           Navigator.pushReplacementNamed(context, '/teacherPage');

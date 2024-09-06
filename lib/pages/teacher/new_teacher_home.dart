@@ -1,6 +1,7 @@
 import 'package:app_test/components/saved_button.dart';
 import 'package:app_test/pages/teacher/more_info.dart';
 import 'package:app_test/pages/teacher/saved_users.dart';
+import 'package:app_test/pages/teacher/teacher_profile.dart';
 import 'package:app_test/pages/teacher/teacher_scheduled_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -290,6 +291,17 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
             tabs: [
               GButton(icon: Icons.home, text: 'Home'),
               GButton(icon: Icons.settings, text: 'Settings'),
+              GButton(
+                  icon: Icons.person,
+                  text: 'Profile',
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TeacherProfile(
+                                // Pass the tutor's name]))
+                                )));
+                  }),
               GButton(
                 icon: Icons.favorite,
                 text: 'Saved',
