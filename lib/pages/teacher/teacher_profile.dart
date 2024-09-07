@@ -31,7 +31,7 @@ class _TeacherProfileState extends State<TeacherProfile> {
     'Performing Arts 🎼',
     'Elementary Education 🏫',
     'Engineering ⚙️',
-    'Social Justice ⚖️ ',
+    'Social Justice ⚖️',
     'Human Health 🧑🏽‍⚕️'
   ];
 
@@ -82,6 +82,8 @@ class _TeacherProfileState extends State<TeacherProfile> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Profile'),
+        backgroundColor: Colors.grey[200], // Very light gray
+        iconTheme: IconThemeData(color: Colors.black),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -91,38 +93,31 @@ class _TeacherProfileState extends State<TeacherProfile> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextFormField(
-                  controller: _firstNameController,
-                  decoration: InputDecoration(labelText: 'First Name'),
-                ),
+                _buildOutlinedTextField(
+                    controller: _firstNameController, label: 'First Name'),
                 SizedBox(height: 16),
-                TextFormField(
-                  controller: _lastNameController,
-                  decoration: InputDecoration(labelText: 'Last Name'),
-                ),
+                _buildOutlinedTextField(
+                    controller: _lastNameController, label: 'Last Name'),
                 SizedBox(height: 16),
-                TextFormField(
-                  controller: _schoolNameController,
-                  decoration: InputDecoration(labelText: 'School Name'),
-                ),
+                _buildOutlinedTextField(
+                    controller: _schoolNameController, label: 'School Name'),
                 SizedBox(height: 16),
-
-                SizedBox(height: 16),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(labelText: 'Email'),
-                ),
-                SizedBox(height: 16),
-                // Interests
+                _buildOutlinedTextField(
+                    controller: _emailController, label: 'Email'),
+                SizedBox(height: 24),
                 Text(
                   'Interests',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
+                SizedBox(height: 8),
                 Wrap(
                   spacing: 8.0,
+                  runSpacing: 8.0,
                   children: _interests
                       .map((interest) => Chip(
                             label: Text(interest),
+                            backgroundColor: Colors.grey.shade100,
+                            deleteIconColor: Colors.black,
                             onDeleted: () {
                               setState(() {
                                 _interests.remove(interest);
@@ -131,11 +126,25 @@ class _TeacherProfileState extends State<TeacherProfile> {
                           ))
                       .toList(),
                 ),
-                TextButton(
-                  onPressed: () {
+                SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () {
                     _selectInterestDialog(context);
                   },
-                  child: Text('Add Interest'),
+                  child: Row(
+                    children: [
+                      Icon(Icons.add, color: Colors.grey[500]),
+                      SizedBox(width: 4),
+                      Text(
+                        'Add Interests',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: 32),
                 Center(
@@ -143,9 +152,10 @@ class _TeacherProfileState extends State<TeacherProfile> {
                     onPressed: _saveProfile,
                     child: Text('Save Profile'),
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
                       padding: EdgeInsets.symmetric(
                           vertical: 16.0, horizontal: 32.0),
-                      textStyle: TextStyle(fontSize: 18),
+                      textStyle: TextStyle(fontSize: 18, color: Colors.black),
                     ),
                   ),
                 ),
@@ -153,6 +163,21 @@ class _TeacherProfileState extends State<TeacherProfile> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildOutlinedTextField(
+      {required TextEditingController controller, required String label}) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        filled: true,
+        fillColor: Colors.grey[100], // Light grey, almost white
       ),
     );
   }
@@ -168,6 +193,7 @@ class _TeacherProfileState extends State<TeacherProfile> {
               return CheckboxListTile(
                 title: Text(interest),
                 value: _interests.contains(interest),
+                activeColor: Colors.grey[600], // Very light accents
                 onChanged: (bool? selected) {
                   setState(() {
                     if (selected == true) {
@@ -189,6 +215,7 @@ class _TeacherProfileState extends State<TeacherProfile> {
               Navigator.of(context).pop();
             },
             child: Text('Done'),
+            style: TextButton.styleFrom(backgroundColor: Colors.grey[600]),
           ),
         ],
       ),

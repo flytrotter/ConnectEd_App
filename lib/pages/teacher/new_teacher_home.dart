@@ -32,7 +32,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
     'Performing Arts 🎼',
     'Elementary Education 🏫',
     'Engineering ⚙️',
-    'Social Justice ⚖️ ',
+    'Social Justice ⚖️',
     'Human Health 🧑🏽‍⚕️'
   ];
 
@@ -67,216 +67,200 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
     });
   }
 
-  // Future<void> _toggleSavedUser(String userId) async {
-  //   User? user = FirebaseAuth.instance.currentUser;
-
-  //   if (user != null) {
-  //     DocumentReference userRef =
-  //         FirebaseFirestore.instance.collection('users').doc(user.uid);
-  //     DocumentSnapshot userDoc = await userRef.get();
-
-  //     // Cast the data to a Map<String, dynamic> and handle null safely
-  //     Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
-  //     List<String> savedUsers = List.from(userData?['saved_users'] ?? []);
-
-  //     if (savedUsers.contains(userId)) {
-  //       savedUsers.remove(userId); // If already saved, remove
-  //     } else {
-  //       savedUsers.add(userId); // If not saved, add
-  //     }
-
-  //     await userRef.update({
-  //       'saved_users': savedUsers,
-  //     });
-
-  //     // Update the 'is_saved' field in the professional's document
-  //     FirebaseFirestore.instance
-  //         .collection('users')
-  //         .doc(userId)
-  //         .update({'is_saved': savedUsers.contains(userId)});
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // This removes the back arrow
-        title: Text('Welcome, ${teacherName ?? "Teacher"}'),
+        automaticallyImplyLeading: false,
+        title: Text(
+          'Welcome, ${teacherName ?? "Teacher"}',
+          style: TextStyle(
+            fontSize: 24.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.teal,
         actions: [
           IconButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-              icon: Icon(Icons.logout)),
+            onPressed: () {
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+            icon: Icon(Icons.logout, color: Colors.white),
+          ),
         ],
       ),
-      body: Column(children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            onChanged: (value) {
-              setState(() {
-                searchQuery = value.toLowerCase();
-              });
-            },
-            decoration: InputDecoration(
-              hintText: 'Search for professionals...',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value.toLowerCase();
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Search for professionals...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.grey[200],
               ),
             ),
           ),
-        ),
-        // Category filter buttons
-        Wrap(
-          spacing: 8.0,
-          children: interests.map((interest) {
-            final isSelected = selectedCategories.contains(interest);
-            return ChoiceChip(
-              label: Text(interest),
-              selected: isSelected,
-              onSelected: (selected) {
-                _toggleCategory(interest);
-              },
-              selectedColor: Colors.blueAccent,
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.black,
-              ),
-            );
-          }).toList(),
-        ),
 
-        Expanded(
-          child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('users')
-                .where('role', isEqualTo: 'student')
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: CircularProgressIndicator());
-              }
-
-              // First, filter users by selected categories
-              final filteredByCategory = snapshot.data!.docs.where((doc) {
-                final data = doc.data() as Map<String, dynamic>;
-                final interestsList = (data['interests'] as List<dynamic>)
-                    .map((e) => e.toString().toLowerCase())
-                    .toList();
-
-                return selectedCategories.isEmpty ||
-                    selectedCategories.any((category) =>
-                        interestsList.contains(category.toLowerCase()));
-              }).toList();
-
-              // Then, apply the search query on the filtered list
-              final professionals = filteredByCategory.where((doc) {
-                final data = doc.data() as Map<String, dynamic>;
-                final fullName =
-                    "${data['first_name']} ${data['last_name']}".toLowerCase();
-                final jobTitle = data['job_title'].toLowerCase();
-                final companyName = data['company_name'].toLowerCase();
-                final interestsList = (data['interests'] as List<dynamic>)
-                    .map((e) => e.toString().toLowerCase())
-                    .toList();
-
-                return fullName.contains(searchQuery) ||
-                    jobTitle.contains(searchQuery) ||
-                    companyName.contains(searchQuery) ||
-                    interestsList
-                        .any((interest) => interest.contains(searchQuery));
-              }).toList();
-
-              return ListView.builder(
-                itemCount: professionals.length,
-                itemBuilder: (context, index) {
-                  final professional = professionals[index];
-                  final Map<String, dynamic> data = professional.data()
-                      as Map<String, dynamic>; // Add this line
-                  final interestsToShow =
-                      (data['interests'] as List<dynamic>).take(2).toList();
-                  return Card(
-                    margin: EdgeInsets.all(10.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
+          // Horizontal scrollable categories
+          Container(
+            height: 50,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: interests.map((interest) {
+                final isSelected = selectedCategories.contains(interest);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: ChoiceChip(
+                    label: Text(interest),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      _toggleCategory(interest);
+                    },
+                    selectedColor: Colors.blueAccent,
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            child: Icon(Icons.person),
-                            radius: 30.0,
-                          ),
-                          SizedBox(width: 16.0),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "${data['first_name']} ${data['last_name']}",
-                                  style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox(height: 4.0),
-                                Text(
-                                  "${data['job_title']} at ${data['company_name']}",
-                                  style: TextStyle(
-                                      fontSize: 14.0, color: Colors.grey[700]),
-                                ),
-                                SizedBox(height: 8.0),
-                                Wrap(
-                                  spacing: 8.0,
-                                  children: interestsToShow
-                                      .map((interest) => Chip(
-                                            label: Text(interest),
-                                          ))
-                                      .toList(),
-                                ),
-                                SizedBox(height: 8.0),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => UserInfoPage(
-                                            userData: data,
-                                            userId: professional.id),
-                                      ),
-                                    );
-                                  },
-                                  child: Text('Request Meeting'),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SaveButton(
-                            userId: professional.id, // Pass the user ID here
-                          ),
-                          // IconButton(
-                          //   icon: Icon(
-                          //     Icons.favorite,
-                          //     color: (data['is_saved'] ?? false)
-                          //         ? Colors.red
-                          //         : Colors.grey,
-                          //   ),
-                          //   onPressed: () {
-                          //     _toggleSavedUser(professional.id);
-                          //   },
-                          // ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
+                  ),
+                );
+              }).toList(),
+            ),
           ),
-        ),
-      ]),
+
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .where('role', isEqualTo: 'student')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                final filteredByCategory = snapshot.data!.docs.where((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final interestsList = (data['interests'] as List<dynamic>)
+                      .map((e) => e.toString().toLowerCase())
+                      .toList();
+
+                  return selectedCategories.isEmpty ||
+                      selectedCategories.any((category) =>
+                          interestsList.contains(category.toLowerCase()));
+                }).toList();
+
+                final professionals = filteredByCategory.where((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final fullName = "${data['first_name']} ${data['last_name']}"
+                      .toLowerCase();
+                  final jobTitle = data['job_title'].toLowerCase();
+                  final companyName = data['company_name'].toLowerCase();
+                  final interestsList = (data['interests'] as List<dynamic>)
+                      .map((e) => e.toString().toLowerCase())
+                      .toList();
+
+                  return fullName.contains(searchQuery) ||
+                      jobTitle.contains(searchQuery) ||
+                      companyName.contains(searchQuery) ||
+                      interestsList
+                          .any((interest) => interest.contains(searchQuery));
+                }).toList();
+
+                return ListView.builder(
+                  itemCount: professionals.length,
+                  itemBuilder: (context, index) {
+                    final professional = professionals[index];
+                    final Map<String, dynamic> data =
+                        professional.data() as Map<String, dynamic>;
+                    final interestsToShow =
+                        (data['interests'] as List<dynamic>).take(2).toList();
+
+                    return Card(
+                      margin:
+                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              child: Icon(Icons.person),
+                              radius: 25.0,
+                            ),
+                            SizedBox(width: 12.0),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "${data['first_name']} ${data['last_name']}",
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4.0),
+                                  Text(
+                                    "${data['job_title']} at ${data['company_name']}",
+                                    style: TextStyle(
+                                        fontSize: 14.0,
+                                        color: Colors.grey[600]),
+                                  ),
+                                  SizedBox(height: 8.0),
+                                  Wrap(
+                                    spacing: 6.0,
+                                    children: interestsToShow
+                                        .map((interest) => Chip(
+                                              label: Text(interest),
+                                              backgroundColor: Colors.grey[200],
+                                            ))
+                                        .toList(),
+                                  ),
+                                  SizedBox(height: 8.0),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => UserInfoPage(
+                                              userData: data,
+                                              userId: professional.id),
+                                        ),
+                                      );
+                                    },
+                                    child: Text('Request Meeting'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SaveButton(
+                              userId: professional.id,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
       bottomNavigationBar: Container(
         color: Colors.black,
         child: Padding(
@@ -298,9 +282,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => TeacherProfile(
-                                // Pass the tutor's name]))
-                                )));
+                            builder: (context) => TeacherProfile()));
                   }),
               GButton(
                 icon: Icons.favorite,
@@ -316,11 +298,9 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => UpcomingMeetingsPage(
-                              // Pass the tutor's name]))
-                              ))); // Navigator.pushReplacementNamed(context, '/savedPage');
+                          builder: (context) => UpcomingMeetingsPage()));
                 },
-              )
+              ),
             ],
           ),
         ),
