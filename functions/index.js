@@ -7,6 +7,9 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const nodemailer = require("nodemailer");
 const {DateTime} = require("luxon");
+// const { google } = require("googleapis");
+// const cloudScheduler = google.cloudscheduler("v1");
+
 
 admin.initializeApp();
 
@@ -170,95 +173,206 @@ exports.sendScheduledMeetingNotification = functions.firestore
         console.log("Scheduled meeting email sent successfully");
 
         // Schedule reminder emails
-        scheduleReminderEmails(data, teacherEmail, industryEmail);
+        // scheduleReminderEmails(data, teacherEmail, industryEmail);
       } catch (error) {
         console.error("Error sending scheduled meeting email:", error);
       }
     });
 
-function scheduleReminderEmails(data, teacherEmail, industryEmail) {
-  console.log("Scheduling reminder emails...");
-  const meetingDateTime = DateTime.fromISO(data.date,
-      {zone: "America/New_York"});
-  console.log("Meeting DateTime (EST):", meetingDateTime.toString());
+    // async function scheduleDynamicReminder(meetingId, reminderTime, data) {
+    //   const auth = new google.auth.GoogleAuth({
+    //     scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+    //   });
 
-  const reminders = [
-    {label: "1 week", time: 7 * 24 * 60 * 60 * 1000},
-    {label: "1 day", time: 24 * 60 * 60 * 1000},
-    {label: "2 hours", time: 2 * 60 * 60 * 1000},
-    {label: "15 minutes", time: 15 * 60 * 1000},
-    {label: "Start", time: 0},
-  ];
+    //   const authClient = await auth.getClient();
+    //   google.options({ auth: authClient });
 
-  const now = DateTime.now().setZone("America/New_York");
-  console.log("Current DateTime (EST):", now.toString());
+    //   const projectId = await google.auth.getProjectId();
+
+    //   // Create a unique job ID based on meeting ID and reminder time
+    //   const jobName = `projects/${projectId}/locations/us-central1/jobs/reminder-${meetingId}-${reminderTime}`;
+
+    //   // Set the reminder time (subtract reminderTime from meeting start time)
+    //   const targetTime = new Date(data.meetingDateTime);
+    //   targetTime.setMinutes(targetTime.getMinutes() - reminderTime);
+
+    //   const jobConfig = {
+    //     parent: `projects/${projectId}/locations/us-central1`,
+    //     job: {
+    //       name: jobName,
+    //       scheduleTime: targetTime.toISOString(),
+    //       httpTarget: {
+    //         httpMethod: "POST",
+    //         uri: `https://us-central1-${projectId}.cloudfunctions.net/sendReminderEmailTask`, // Cloud Function to send email
+    //         body: Buffer.from(
+    //           JSON.stringify({
+    //             teacherEmail: data.teacherEmail,
+    //             industryEmail: data.industryEmail,
+    //             label: `${reminderTime} minutes before meeting`,
+    //             data: data,
+    //           }),
+    //         ).toString("base64"),
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //         },
+    //       },
+    //     },
+    //   };
+
+    //   try {
+    //     const response = await cloudScheduler.projects.locations.jobs.create({
+    //       parent: `projects/${projectId}/locations/us-central1`,
+    //       resource: jobConfig,
+    //     });
+    //     console.log(`Successfully scheduled job ${jobName}: `, response.data);
+    //   } catch (error) {
+    //     console.error(`Failed to schedule reminder: ${error.message}`);
+    //   }
+    // }
+
+// function scheduleReminderEmails(data, teacherEmail, industryEmail) {
+//   console.log("Scheduling reminder emails...");
+//   const meetingDateTime = DateTime.fromISO(data.date, {zone: "America/New_York"})
+//   .set({
+//     hour: parseInt(data.start_time.split(':')[0]),
+//     minute: parseInt(data.start_time.split(':')[1]),
+//   });
+//   console.log("Meeting DateTime (EST):", meetingDateTime.toString());
+
+//   const reminders = [
+//     {label: "1 week", time: 7 * 24 * 60 * 60 * 1000},
+//     {label: "1 day", time: 24 * 60 * 60 * 1000},
+//     {label: "2 hours", time: 2 * 60 * 60 * 1000},
+//     {label: "15 minutes", time: 15 * 60 * 1000},
+//     {label: "Start", time: 0},
+//   ];
+
+//   reminders.forEach((reminder) => {
+//     scheduleDynamicReminder(data.meetingId, reminder.time, {
+//       teacherEmail,
+//       industryEmail,
+//       meetingDate: meetingDateTime, // Combine date and time for scheduling
+//       start_time: data.start_time,
+//       end_time: data.end_time,
+//       outline: data.outline,
+//       teacherName: data.teacherName,
+//     });
+//   });
+// }
+
+// exports.sendReminderEmailTask = functions.https.onRequest(async (req, res) => {
+//   const { teacherEmail, industryEmail, label, data } = req.body;
+
+//   const mailOptions = {
+//     from: '"ConnectEd" <connected.app.contact@gmail.com>',
+//     to: `${teacherEmail}, ${industryEmail}`,
+//     subject: `🔔 Reminder: Meeting with ${data.teacherName} in ${label} 🔔`,
+//     html: `
+//       <div style="background-color: #f9f7cf; padding: 20px; font-family: Arial, sans-serif; color: #333;">
+//         <div style="text-align: center; margin-bottom: 20px;">
+//           <img src="https://your-logo-url.com/logo.png" alt="ConnectEd Logo" style="width: 100px; height: auto;" />
+//         </div>
+//         <div style="background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+//           <h2 style="color: #2c3e50;">🔔 Reminder: Meeting with ${data.teacherName}</h2>
+//           <p style="font-size: 16px; line-height: 1.6;"><strong>Date and Time:</strong> ${data.date} from ${data.start_time} to ${data.end_time}</p>
+//           <p style="font-size: 16px; line-height: 1.6;"><strong>Outline:</strong> ${data.outline}</p>
+//           <p style="font-size: 16px; line-height: 1.6;"><strong>Meet Link:</strong> ${data.meet_info}</p>
+//         </div>
+//       </div>
+//     `,
+//   };
+
+//   transporter.sendMail(mailOptions, (error, info) => {
+//     if (error) {
+//       return res.status(500).send(`Error sending reminder email: ${error.message}`);
+//     }
+//     console.log(`Reminder email sent: ${info.response}`);
+//     res.status(200).send(`Reminder email sent: ${info.response}`);
+//   });
+// });
 
 
-  reminders.forEach((reminder) => {
-    const reminderTime = meetingDateTime.minus({milliseconds: reminder.time});
-    console.log(`Reminder for ${reminder.label}
-       at (EST):`, reminderTime.toString());
+  // const now = DateTime.now().setZone("America/New_York");
+  // console.log("Current DateTime (EST):", now.toString());
 
-    if (reminderTime > now) {
-      const delay = reminderTime.diff(now).as("milliseconds");
-      console.log(`Scheduling reminder for ${reminder.label} in ${delay} ms`);
+//   reminders.forEach((reminder) => {
+//     const reminderTime = meetingDateTime.minus({milliseconds: reminder.time});
+//     console.log(`Reminder for ${reminder.label} at (EST):`, reminderTime.toString());
 
-      setTimeout(() => {
-        sendReminderEmail(reminder.label, teacherEmail, industryEmail, data);
-      }, delay);
-    } else {
-      console.log(`Skipping reminder 
-        for ${reminder.label} - Time has already passed.`);
-    }
-  });
-}
+//     if (reminderTime > now) {
+//       const delay = reminderTime.diff(now).as("milliseconds");
+//       console.log(`Scheduling reminder for ${reminder.label} in ${delay} ms`);
 
-function sendReminderEmail(label, teacherEmail, industryEmail, data) {
-  console.log(`Sending reminder email for ${label}...`);
+//       setTimeout(() => {
+//         sendReminderEmail(reminder.label, teacherEmail, industryEmail, data);
+//       }, delay);
+//     } else {
+//       console.log(`Skipping reminder for ${reminder.label} - Time has already passed.`);
+//     }
+//   });
+// }
 
-  const meetLink = data.meet_info;
-  const humanReadableDate = DateTime.fromISO(data.date, {zone: "America/New_York"}).toFormat("MMMM d'th', yyyy");
-  const startTime = DateTime.fromISO(data.date + "T" + data.start_time, {zone: "America/New_York"}).toFormat("h:mm a");
-  const endTime = DateTime.fromISO(data.date + "T" + data.end_time, {zone: "America/New_York"}).toFormat("h:mm a");
+// function sendReminderEmail(label, teacherEmail, industryEmail, data) {
+//   console.log(`Sending reminder email for ${label}...`);
 
-  const mailOptions = {
-    from: "\"ConnectEd\" <connected.app.contact@gmail.com>",
-    to: `${teacherEmail}, ${industryEmail}`,
-    subject: `🔔 Reminder: Meeting with ${data.teacherName} in ${label} 🔔 `,
-    html: `
-            <div style="background-color: #f9f7cf; padding: 20px; 
-            font-family: Arial, sans-serif; color: #333;">
-              <div style="text-align: center; margin-bottom: 20px;">
-                <img src="https://your-logo-url.com/logo.png" alt="ConnectEd Logo" style="width: 100px; height: auto;" />
-              </div>
-              <div style="background-color: #fff; padding: 20px;
-               border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-                <h2 style="color: #2c3e50;
-                ">🔔 Reminder: Meeting with ${data.teacherName}</h2>
-                <p style="font-size: 16px; 
-                line-height: 1.6;"><strong>Date and Time:</strong> 
-                ${humanReadableDate} from ${startTime} to ${endTime}</p>
-                <p style="font-size: 16px; line-height: 1.6;
-                "><strong>Outline:</strong> ${data.outline}</p>
-                <p style="font-size: 16px; line-height: 1.6;
-                "><strong>Meet Link:</strong> ${meetLink}</p>
-                <div style="text-align: center; 
-                margin-top: 20px; font-size: 12px; color: #999;">
-                  <p>© 2024 ConnectEd. All rights reserved.</p>
-                  <p>If you did not request this email, please ignore it.</p>
-                </div>
-              </div>
-            </div>
-          `,
-  };
+//   const meetLink = data.meet_info;
+//   const humanReadableDate = DateTime.fromISO(data.date, {zone: "America/New_York"})
+//         .toFormat("MMMM d, yyyy"); // Properly formats the date to be human-readable
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return console.error("Error sending reminder email:", error);
-    }
-    console.log(`Reminder email for ${label} sent: ${info.response}`);
-  });
-}
+//     // Parsing and adjusting start time
+//     const startTime = DateTime.fromISO(data.date, {zone: "America/New_York"}) // Keep the date in the right time zone
+//         .set({
+//             hour: parseInt(data.start_time.split(':')[0]),
+//             minute: parseInt(data.start_time.split(':')[1]),
+//         }) // Set the correct hours and minutes from the input time
+//         .toFormat("h:mm a"); // Formats to 12-hour time (AM/PM)
+
+//     // Parsing and adjusting end time
+//     const endTime = DateTime.fromISO(data.date, {zone: "America/New_York"}) // Keep the date in the right time zone
+//         .set({
+//             hour: parseInt(data.end_time.split(':')[0]),
+//             minute: parseInt(data.end_time.split(':')[1]),
+//         }) // Set the correct hours and minutes from the input time
+//         .toFormat("h:mm a"); // Formats to 12-hour time (AM/PM)
+
+//   const mailOptions = {
+//     from: "\"ConnectEd\" <connected.app.contact@gmail.com>",
+//     to: `${teacherEmail}, ${industryEmail}`,
+//     subject: `🔔 Reminder: Meeting with ${data.teacherName} in ${label} 🔔 `,
+//     html: `
+//             <div style="background-color: #f9f7cf; padding: 20px;
+//             font-family: Arial, sans-serif; color: #333;">
+//               <div style="text-align: center; margin-bottom: 20px;">
+//                 <img src="https://your-logo-url.com/logo.png" alt="ConnectEd Logo" style="width: 100px; height: auto;" />
+//               </div>
+//               <div style="background-color: #fff; padding: 20px;
+//                border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+//                 <h2 style="color: #2c3e50;
+//                 ">🔔 Reminder: Meeting with ${data.teacherName}</h2>
+//                 <p style="font-size: 16px;
+//                 line-height: 1.6;"><strong>Date and Time:</strong>
+//                 ${humanReadableDate} from ${startTime} to ${endTime}</p>
+//                 <p style="font-size: 16px; line-height: 1.6;
+//                 "><strong>Outline:</strong> ${data.outline}</p>
+//                 <p style="font-size: 16px; line-height: 1.6;
+//                 "><strong>Meet Link:</strong> ${meetLink}</p>
+//                 <div style="text-align: center;
+//                 margin-top: 20px; font-size: 12px; color: #999;">
+//                   <p>© 2024 ConnectEd. All rights reserved.</p>
+//                   <p>If you did not request this email, please ignore it.</p>
+//                 </div>
+//               </div>
+//             </div>
+//           `,
+//   };
+
+//   transporter.sendMail(mailOptions, (error, info) => {
+//     if (error) {
+//       return console.error("Error sending reminder email:", error);
+//     }
+//     console.log(`Reminder email for ${label} sent: ${info.response}`);
+//   });
+// }
 
 function formatDateForCalendar(date, time) {
   try {

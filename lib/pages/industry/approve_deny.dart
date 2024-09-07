@@ -115,6 +115,7 @@ class _ApproveOrDenyPageState extends State<ApproveOrDenyPage> {
         'scheduledAt': Timestamp.now(),
         'requestId': widget.requestId,
         'meet_info': meet_link,
+        // New fields for reminders
       });
 
       await FirebaseFirestore.instance
