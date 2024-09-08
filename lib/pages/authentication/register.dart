@@ -138,6 +138,7 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
           centerTitle: true,
           title: Text('Sign Up'),
@@ -147,223 +148,250 @@ class _SignUpPageState extends State<SignUpPage> {
               Navigator.pushReplacementNamed(context, '/login');
             },
           )),
-      body: Stepper(
-        currentStep: _currentStep,
-        onStepTapped: (step) => setState(() => _currentStep = step),
-        onStepContinue: () {
-          if (_currentStep < 3) {
-            setState(() => _currentStep += 1);
-          } else {}
-        },
-        onStepCancel:
-            _currentStep == 0 ? null : () => setState(() => _currentStep -= 1),
-        steps: [
-          Step(
-            title: Text('Account Type'),
-            isActive: _currentStep >= 0,
-            content: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          isTeacher = true;
-                        });
-                      },
-                      icon: Icon(Icons.school),
-                      label: Text('Teacher'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isTeacher ? Colors.blue : Colors.grey,
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          isTeacher = false;
-                        });
-                      },
-                      icon: Icon(Icons.book),
-                      label: Text('Student'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: !isTeacher ? Colors.blue : Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Step(
-            title: Text('Account Details'),
-            isActive: _currentStep >= 1,
-            content: Form(
-              key: _formKey,
-              child: Column(
+      body: Theme(
+        data: ThemeData(
+            primarySwatch: Colors.orange,
+            colorScheme:
+                ColorScheme.light(primary: Color.fromRGBO(33, 158, 188, 3))),
+        child: Stepper(
+          currentStep: _currentStep,
+          onStepTapped: (step) => setState(() => _currentStep = step),
+          onStepContinue: () {
+            if (_currentStep < 3) {
+              setState(() => _currentStep += 1);
+            } else {}
+          },
+          onStepCancel: _currentStep == 0
+              ? null
+              : () => setState(() => _currentStep -= 1),
+          steps: [
+            Step(
+              title: Text('Account Type'),
+              isActive: _currentStep >= 0,
+              content: Column(
                 children: [
-                  TextFormField(
-                    controller: firstNameController,
-                    decoration: InputDecoration(labelText: 'First Name'),
-                    validator: (value) =>
-                        value!.isEmpty ? 'Please enter your first name' : null,
-                  ),
-                  TextFormField(
-                    controller: lastNameController,
-                    decoration: InputDecoration(labelText: 'Last Name'),
-                    validator: (value) =>
-                        value!.isEmpty ? 'Please enter your last name' : null,
-                  ),
-                  TextFormField(
-                    controller: emailController,
-                    decoration: InputDecoration(labelText: 'Email'),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) =>
-                        value!.isEmpty ? 'Please enter your email' : null,
-                  ),
-                  TextFormField(
-                    controller: passwordController,
-                    decoration: InputDecoration(labelText: 'Password'),
-                    obscureText: true,
-                    validator: (value) =>
-                        value!.isEmpty ? 'Please enter your password' : null,
-                  ),
-                  TextFormField(
-                    controller: confirmPasswordController,
-                    decoration: InputDecoration(labelText: 'Confirm Password'),
-                    obscureText: true,
-                    validator: (value) => value != passwordController.text
-                        ? 'Passwords do not match'
-                        : null,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            isTeacher = true;
+                          });
+                        },
+                        icon: Icon(
+                          Icons.school,
+                          color: Colors.black,
+                        ),
+                        label: Text(
+                          'Teacher',
+                          style: TextStyle(
+                            color: Colors.black,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: isTeacher
+                                ? Color.fromRGBO(255, 183, 3, 10)
+                                : const Color.fromARGB(255, 211, 207, 207)),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            isTeacher = false;
+                          });
+                        },
+                        icon: Icon(
+                          Icons.book,
+                          color: Colors.black,
+                        ),
+                        label: Text(
+                          'Student',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: !isTeacher
+                              ? Color.fromRGBO(255, 183, 3, 10)
+                              : const Color.fromARGB(255, 211, 207, 207),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ),
-          Step(
-            title: Text(isTeacher ? 'Teacher Details' : 'Student Details'),
-            isActive: _currentStep >= 2,
-            content: isTeacher
-                ? Column(
-                    children: [
-                      Text('Select Subjects You Teach'),
-                      Wrap(
-                        spacing: 10,
-                        children: subjects.map((subject) {
-                          return ChoiceChip(
-                            label: Text(subject),
-                            selected: selectedSubjects.contains(subject),
-                            onSelected: (selected) {
-                              setState(() {
-                                if (selected) {
-                                  selectedSubjects.add(subject);
-                                } else {
-                                  selectedSubjects.remove(subject);
-                                }
-                              });
-                            },
-                          );
-                        }).toList(),
-                      ),
-                      TextFormField(
-                        controller: schoolNameController,
-                        decoration: InputDecoration(labelText: 'School Name'),
-                        validator: (value) => value!.isEmpty
-                            ? 'Please enter your school name'
-                            : null,
-                      ),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      TextFormField(
-                        controller: companyNameController,
-                        decoration:
-                            InputDecoration(labelText: 'Current Company Name'),
-                        validator: (value) => value!.isEmpty
-                            ? 'Please enter your company name'
-                            : null,
-                      ),
-                      TextFormField(
-                        controller: roleController,
-                        decoration:
-                            InputDecoration(labelText: 'Role at Company'),
-                        validator: (value) =>
-                            value!.isEmpty ? 'Please enter your role' : null,
-                      ),
-                      TextFormField(
-                        controller: linkedInController,
-                        decoration: InputDecoration(
-                            labelText: 'LinkedIn Account (Optional)'),
-                      ),
-                      TextFormField(
-                        controller: experienceController,
-                        decoration:
-                            InputDecoration(labelText: 'Bio and Experience'),
-                        maxLines: 5,
-                        validator: (value) => value!.isEmpty
-                            ? 'Please describe your experience'
-                            : null,
-                      ),
-                      // TextFormField(
-                      //   controller: expertiseController,
-                      //   decoration:
-                      //       InputDecoration(labelText: 'Area of Expertise'),
-                      //   maxLines: 3,
-                      //   validator: (value) => value!.isEmpty
-                      //       ? 'Please enter your area of expertise'
-                      //       : null,
-                      // ),
-                      const SizedBox(height: 25),
-                      Text('Select Your Interests'),
-                      Wrap(
-                        spacing: 10,
-                        children: interests.map((interest) {
-                          return ChoiceChip(
-                            label: Text(interest),
-                            selected: selectedInterests.contains(interest),
-                            onSelected: (selected) {
-                              setState(() {
-                                if (selected) {
-                                  selectedInterests.add(interest);
-                                } else {
-                                  selectedInterests.remove(interest);
-                                }
-                              });
-                            },
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ),
-          ),
-          Step(
-            title: Text('Submit'),
-            isActive: _currentStep >= 3,
-            content: ElevatedButton(
-              onPressed: signUp,
-              child: Text('Sign Up'),
-            ),
-          ),
-        ],
-        controlsBuilder: (BuildContext context, ControlsDetails details) {
-          // Hide the default controls on the last step
-          return _currentStep == 3
-              ? Container() // Hide the buttons
-              : Row(
-                  children: <Widget>[
-                    TextButton(
-                      onPressed: details.onStepContinue,
-                      child: const Text('CONTINUE'),
+            Step(
+              title: Text('Account Details'),
+              isActive: _currentStep >= 1,
+              content: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: firstNameController,
+                      decoration: InputDecoration(labelText: 'First Name'),
+                      validator: (value) => value!.isEmpty
+                          ? 'Please enter your first name'
+                          : null,
                     ),
-                    if (_currentStep > 0)
-                      TextButton(
-                        onPressed: details.onStepCancel,
-                        child: const Text('BACK'),
-                      ),
+                    TextFormField(
+                      controller: lastNameController,
+                      decoration: InputDecoration(labelText: 'Last Name'),
+                      validator: (value) =>
+                          value!.isEmpty ? 'Please enter your last name' : null,
+                    ),
+                    TextFormField(
+                      controller: emailController,
+                      decoration: InputDecoration(labelText: 'Email'),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Please enter your email' : null,
+                    ),
+                    TextFormField(
+                      controller: passwordController,
+                      decoration: InputDecoration(labelText: 'Password'),
+                      obscureText: true,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Please enter your password' : null,
+                    ),
+                    TextFormField(
+                      controller: confirmPasswordController,
+                      decoration:
+                          InputDecoration(labelText: 'Confirm Password'),
+                      obscureText: true,
+                      validator: (value) => value != passwordController.text
+                          ? 'Passwords do not match'
+                          : null,
+                    ),
                   ],
-                );
-        },
+                ),
+              ),
+            ),
+            Step(
+              title: Text(isTeacher ? 'Teacher Details' : 'Student Details'),
+              isActive: _currentStep >= 2,
+              content: isTeacher
+                  ? Column(
+                      children: [
+                        Text('Select Subjects You Teach'),
+                        Wrap(
+                          spacing: 10,
+                          children: subjects.map((subject) {
+                            return ChoiceChip(
+                              label: Text(subject),
+                              selected: selectedSubjects.contains(subject),
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    selectedSubjects.add(subject);
+                                  } else {
+                                    selectedSubjects.remove(subject);
+                                  }
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                        TextFormField(
+                          controller: schoolNameController,
+                          decoration: InputDecoration(labelText: 'School Name'),
+                          validator: (value) => value!.isEmpty
+                              ? 'Please enter your school name'
+                              : null,
+                        ),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        TextFormField(
+                          controller: companyNameController,
+                          decoration: InputDecoration(
+                              labelText: 'Current Company Name'),
+                          validator: (value) => value!.isEmpty
+                              ? 'Please enter your company name'
+                              : null,
+                        ),
+                        TextFormField(
+                          controller: roleController,
+                          decoration:
+                              InputDecoration(labelText: 'Role at Company'),
+                          validator: (value) =>
+                              value!.isEmpty ? 'Please enter your role' : null,
+                        ),
+                        TextFormField(
+                          controller: linkedInController,
+                          decoration: InputDecoration(
+                              labelText: 'LinkedIn Account (Optional)'),
+                        ),
+                        TextFormField(
+                          controller: experienceController,
+                          decoration:
+                              InputDecoration(labelText: 'Bio and Experience'),
+                          maxLines: 5,
+                          validator: (value) => value!.isEmpty
+                              ? 'Please describe your experience'
+                              : null,
+                        ),
+                        // TextFormField(
+                        //   controller: expertiseController,
+                        //   decoration:
+                        //       InputDecoration(labelText: 'Area of Expertise'),
+                        //   maxLines: 3,
+                        //   validator: (value) => value!.isEmpty
+                        //       ? 'Please enter your area of expertise'
+                        //       : null,
+                        // ),
+                        const SizedBox(height: 25),
+                        Text('Select Your Interests'),
+                        Wrap(
+                          spacing: 10,
+                          children: interests.map((interest) {
+                            return ChoiceChip(
+                              label: Text(interest),
+                              selected: selectedInterests.contains(interest),
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    selectedInterests.add(interest);
+                                  } else {
+                                    selectedInterests.remove(interest);
+                                  }
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+            ),
+            Step(
+              title: Text('Submit'),
+              isActive: _currentStep >= 3,
+              content: ElevatedButton(
+                onPressed: signUp,
+                style: ButtonStyle(),
+                child: Text('Sign Up'),
+              ),
+            ),
+          ],
+          controlsBuilder: (BuildContext context, ControlsDetails details) {
+            // Hide the default controls on the last step
+            return _currentStep == 3
+                ? Container() // Hide the buttons
+                : Row(
+                    children: <Widget>[
+                      TextButton(
+                        onPressed: details.onStepContinue,
+                        child: const Text('CONTINUE'),
+                      ),
+                      if (_currentStep > 0)
+                        TextButton(
+                          onPressed: details.onStepCancel,
+                          child: const Text('BACK'),
+                        ),
+                    ],
+                  );
+          },
+        ),
       ),
     );
   }

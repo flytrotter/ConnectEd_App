@@ -30,7 +30,7 @@ class _SchedulingPageState extends State<SchedulingPage> {
   }
 
   Future<void> _loadUserName() async {
-    String name = await getCurrentUserFullName();
+    String name = getCurrentUserFullName().toString();
     setState(() {
       userName = name;
     });

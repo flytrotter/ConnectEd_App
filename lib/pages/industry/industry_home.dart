@@ -1,13 +1,16 @@
 import 'package:app_test/components/get_current_id.dart';
+import 'package:app_test/components/get_current_name.dart';
 import 'package:app_test/components/uid_to_name.dart';
 import 'package:app_test/pages/industry/approve_deny.dart';
+import 'package:app_test/pages/industry/create_events.dart';
 import 'package:app_test/pages/industry/edit_meeting_details.dart';
 import 'package:app_test/pages/industry/industry_profile.dart';
 import 'package:app_test/pages/industry/volunteer_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:intl/intl.dart'; // For formatting date and time
+import 'package:intl/intl.dart';
+import 'dart:math'; // For formatting date and time
 
 class IndustryHome extends StatefulWidget {
   @override
@@ -17,13 +20,41 @@ class IndustryHome extends StatefulWidget {
 class _IndustryHomeState extends State<IndustryHome> {
   String? userId = getCurrentUserId();
   String searchQuery = '';
+  String currentName = getCurrentUserFullName().toString();
+  String userName = '';
+
+  final List<Color> colorList = [
+    const Color.fromRGBO(251, 133, 0, 120), // Orange
+    const Color.fromRGBO(255, 183, 3, 120), // Yellow
+    const Color.fromRGBO(142, 202, 230, 120) // Light Blue
+  ];
+
+  Color getRandomColor() {
+    final random = Random();
+    return colorList[random.nextInt(colorList.length)];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    // Asynchronously fetch the user's full name and update the state
+    String? name =
+        await getCurrentUserFullName().toString(); // Await the future
+    setState(() {
+      userName = name ?? 'Unknown User'; // Update the userName state
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text('Tutor Home Page', style: TextStyle(color: Colors.black)),
+        title: Text('Welcome!', style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         actions: [
           IconButton(
@@ -165,7 +196,7 @@ class _IndustryHomeState extends State<IndustryHome> {
                                             horizontal: 16.0, vertical: 8.0),
                                         leading: CircleAvatar(
                                           radius: 24,
-                                          backgroundColor: Colors.grey[200],
+                                          backgroundColor: getRandomColor(),
                                           child: Icon(
                                             Icons.person,
                                             color: Colors.grey[600],
@@ -279,7 +310,7 @@ class _IndustryHomeState extends State<IndustryHome> {
                                             horizontal: 16.0, vertical: 8.0),
                                         leading: CircleAvatar(
                                           radius: 24,
-                                          backgroundColor: Colors.grey[200],
+                                          backgroundColor: getRandomColor(),
                                           child: Icon(
                                             Icons.person,
                                             color: Colors.grey[600],
@@ -334,43 +365,59 @@ class _IndustryHomeState extends State<IndustryHome> {
       ),
       // INDUSTRY NAVIGATOR
       bottomNavigationBar: Container(
-        color: Colors.black,
+        margin: EdgeInsets.symmetric(
+            horizontal: 20.0, vertical: 10.0), // Margin to make it float
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(30.0), // Curved edges
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 3,
+              blurRadius: 10,
+              offset: Offset(0, 3), // Shadow effect for floating effect
+            ),
+          ],
+        ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
           child: GNav(
             backgroundColor: Colors.black,
             color: Colors.white,
             activeColor: Colors.white,
-            tabBackgroundColor: Colors.grey.shade800,
+            tabBackgroundColor: Colors.black,
             padding: EdgeInsets.all(16),
             gap: 8,
             tabs: [
-              GButton(icon: Icons.home, text: 'Home'),
-              GButton(icon: Icons.settings, text: 'Settings'),
               GButton(
-                icon: Icons.person,
-                text: 'Profile Details',
+                  icon: Icons.home,
+                  text: 'Home',
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => IndustryHome()));
+                  }),
+              // GButton(icon: Icons.settings, text: 'Settings'),
+              GButton(
+                  icon: Icons.person,
+                  text: 'Profile',
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => IndustryProfilePage()));
+                  }),
+              GButton(
+                icon: Icons.event,
+                text: 'Schedule',
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => IndustryProfilePage()),
-                  );
+                  //   Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //           builder: (context) => industry()));
                 },
               ),
-              GButton(
-                icon: Icons.punch_clock,
-                text: 'Volunteer hours',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            VolunteerPage(industryUserId: userId)),
-                  );
-                },
-              ),
-              GButton(icon: Icons.event, text: 'Schedule'),
             ],
           ),
         ),

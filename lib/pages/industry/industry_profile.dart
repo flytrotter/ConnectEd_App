@@ -1,6 +1,8 @@
+import 'package:app_test/pages/industry/industry_home.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 
 class IndustryProfilePage extends StatefulWidget {
   @override
@@ -91,6 +93,7 @@ class _IndustryProfilePageState extends State<IndustryProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Profile'),
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -173,6 +176,64 @@ class _IndustryProfilePageState extends State<IndustryProfilePage> {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.symmetric(
+            horizontal: 20.0, vertical: 10.0), // Margin to make it float
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(30.0), // Curved edges
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 3,
+              blurRadius: 10,
+              offset: Offset(0, 3), // Shadow effect for floating effect
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
+          child: GNav(
+            backgroundColor: Colors.black,
+            color: Colors.white,
+            activeColor: Colors.white,
+            tabBackgroundColor: Colors.black,
+            padding: EdgeInsets.all(16),
+            gap: 8,
+            tabs: [
+              GButton(
+                  icon: Icons.home,
+                  text: 'Home',
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => IndustryHome()));
+                  }),
+              // GButton(icon: Icons.settings, text: 'Settings'),
+              GButton(
+                  icon: Icons.person,
+                  text: 'Profile',
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => IndustryProfilePage()));
+                  }),
+              GButton(
+                icon: Icons.event,
+                text: 'Schedule',
+                onPressed: () {
+                  //   Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //           builder: (context) => industry()));
+                },
+              ),
+            ],
           ),
         ),
       ),

@@ -1,10 +1,11 @@
+import 'package:app_test/components/get_current_id.dart';
 import 'package:app_test/components/uid_to_info.dart';
 import 'package:flutter/material.dart';
 
 class SavedUsers extends StatelessWidget {
-  final String currentUserUid;
+  String? userId = getCurrentUserId();
 
-  SavedUsers({required this.currentUserUid});
+  SavedUsers({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +14,7 @@ class SavedUsers extends StatelessWidget {
         title: Text('Saved Users'),
       ),
       body: FutureBuilder<List<Widget>>(
-        future: getUserCards(currentUserUid),
+        future: getUserCards(userId.toString()),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());

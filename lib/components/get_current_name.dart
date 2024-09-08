@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-Future<String> getCurrentUserFullName() async {
+Future<String?> getCurrentUserFullName() async {
   try {
     // Get the current user from Firebase Authentication
     User? currentUser = FirebaseAuth.instance.currentUser;

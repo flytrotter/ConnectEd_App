@@ -262,19 +262,40 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
         ],
       ),
       bottomNavigationBar: Container(
-        color: Colors.black,
+        margin: EdgeInsets.symmetric(
+            horizontal: 20.0, vertical: 10.0), // Margin to make it float
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(30.0), // Curved edges
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 3,
+              blurRadius: 10,
+              offset: Offset(0, 3), // Shadow effect for floating effect
+            ),
+          ],
+        ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
           child: GNav(
             backgroundColor: Colors.black,
             color: Colors.white,
             activeColor: Colors.white,
-            tabBackgroundColor: Colors.grey.shade800,
+            tabBackgroundColor: Colors.black,
             padding: EdgeInsets.all(16),
             gap: 8,
             tabs: [
-              GButton(icon: Icons.home, text: 'Home'),
-              GButton(icon: Icons.settings, text: 'Settings'),
+              GButton(
+                  icon: Icons.home,
+                  text: 'Home',
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TeacherHomePage()));
+                  }),
+              // GButton(icon: Icons.settings, text: 'Settings'),
               GButton(
                   icon: Icons.person,
                   text: 'Profile',

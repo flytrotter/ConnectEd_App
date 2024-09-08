@@ -1,8 +1,12 @@
 import 'package:app_test/components/get_current_id.dart';
 import 'package:app_test/components/uid_to_name.dart';
 import 'package:app_test/pages/teacher/more_meeting_details.dart';
+import 'package:app_test/pages/teacher/new_teacher_home.dart';
+import 'package:app_test/pages/teacher/saved_users.dart';
+import 'package:app_test/pages/teacher/teacher_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:intl/intl.dart'; // For formatting date and time
 
 class UpcomingMeetingsPage extends StatefulWidget {
@@ -14,6 +18,7 @@ class _UpcomingMeetingsPageState extends State<UpcomingMeetingsPage>
     with TickerProviderStateMixin {
   List<Map<String, dynamic>> pendingMeetings = [];
   List<Map<String, dynamic>> approvedMeetings = [];
+  int _selectedIndex = 0; // New variable to track selected index
 
   @override
   void initState() {
@@ -113,6 +118,7 @@ class _UpcomingMeetingsPageState extends State<UpcomingMeetingsPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('Upcoming Meetings'),
         backgroundColor: Colors.white,
         elevation: 1,
@@ -167,6 +173,71 @@ class _UpcomingMeetingsPageState extends State<UpcomingMeetingsPage>
                   }))
               .toList(),
         ],
+      ),
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.symmetric(
+            horizontal: 20.0, vertical: 10.0), // Margin to make it float
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(30.0), // Curved edges
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 3,
+              blurRadius: 10,
+              offset: Offset(0, 3), // Shadow effect for floating effect
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
+          child: GNav(
+            backgroundColor: Colors.black,
+            color: Colors.white,
+            activeColor: Colors.white,
+            tabBackgroundColor: Colors.black,
+            padding: EdgeInsets.all(16),
+            gap: 8,
+            tabs: [
+              GButton(
+                  icon: Icons.home,
+                  text: 'Home',
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TeacherHomePage()));
+                  }),
+              // GButton(icon: Icons.settings, text: 'Settings'),
+              GButton(
+                  icon: Icons.person,
+                  text: 'Profile',
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TeacherProfile()));
+                  }),
+              GButton(
+                icon: Icons.favorite,
+                text: 'Saved',
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/savedPage');
+                },
+              ),
+              GButton(
+                icon: Icons.event,
+                text: 'Schedule',
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => UpcomingMeetingsPage()));
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

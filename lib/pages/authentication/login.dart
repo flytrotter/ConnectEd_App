@@ -92,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Colors.white,
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(25.0),
@@ -100,16 +100,16 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // logo
-                Icon(
-                  Icons.person,
-                  size: 80,
-                  color: Theme.of(context).colorScheme.inversePrimary,
+                Image.asset(
+                  'assets/connected.png', // Make sure you put your logo file in assets and reference it here.
+                  width: 400,
+                  height: 150,
                 ),
 
                 // app name
-                const SizedBox(height: 25),
+                const SizedBox(height: 20),
                 const Text(
-                  "M I N I M A L",
+                  "L O G I N",
                   style: TextStyle(fontSize: 20),
                 ),
 

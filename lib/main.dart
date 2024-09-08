@@ -44,7 +44,7 @@ class _MyAppState extends State<MyApp> {
         '/teacherPage': (context) => TeacherHomePage(),
         '/industryPage': (context) => IndustryHome(),
         // '/schedulePage': (context) => SchedulePage()
-        '/savedPage': (context) => SavedUsers(currentUserUid: userId ?? '')
+        '/savedPage': (context) => SavedUsers()
       },
       theme: ThemeData(
         primaryColor: Colors.blue[900],
