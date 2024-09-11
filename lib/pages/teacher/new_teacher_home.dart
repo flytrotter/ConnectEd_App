@@ -57,6 +57,8 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
     }
   }
 
+  // Event cards manually created for now
+
   void _toggleCategory(String category) {
     setState(() {
       if (selectedCategories.contains(category)) {
@@ -92,6 +94,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
       ),
       body: Column(
         children: [
+// Horizontal scrollable event cards
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: TextField(

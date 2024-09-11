@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignUpPage extends StatefulWidget {
   SignUpPage({super.key});
@@ -141,6 +142,7 @@ class _SignUpPageState extends State<SignUpPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
           centerTitle: true,
+          backgroundColor: Colors.white,
           title: Text('Sign Up'),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
@@ -150,9 +152,11 @@ class _SignUpPageState extends State<SignUpPage> {
           )),
       body: Theme(
         data: ThemeData(
-            primarySwatch: Colors.orange,
-            colorScheme:
-                ColorScheme.light(primary: Color.fromRGBO(33, 158, 188, 3))),
+          primarySwatch: Colors.blue,
+          colorScheme:
+              ColorScheme.light(primary: Color.fromRGBO(0, 119, 182, 3)),
+          textTheme: GoogleFonts.poppinsTextTheme(),
+        ),
         child: Stepper(
           currentStep: _currentStep,
           onStepTapped: (step) => setState(() => _currentStep = step),
@@ -166,7 +170,10 @@ class _SignUpPageState extends State<SignUpPage> {
               : () => setState(() => _currentStep -= 1),
           steps: [
             Step(
-              title: Text('Account Type'),
+              title: Text(
+                'Account Type',
+                style: TextStyle(),
+              ),
               isActive: _currentStep >= 0,
               content: Column(
                 children: [
@@ -191,8 +198,8 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                         style: ElevatedButton.styleFrom(
                             backgroundColor: isTeacher
-                                ? Color.fromRGBO(255, 183, 3, 10)
-                                : const Color.fromARGB(255, 211, 207, 207)),
+                                ? Color.fromRGBO(0, 119, 182, 10)
+                                : Color.fromARGB(246, 233, 251, 255)),
                       ),
                       ElevatedButton.icon(
                         onPressed: () {
@@ -205,14 +212,13 @@ class _SignUpPageState extends State<SignUpPage> {
                           color: Colors.black,
                         ),
                         label: Text(
-                          'Student',
+                          'Professional',
                           style: TextStyle(color: Colors.black),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: !isTeacher
-                              ? Color.fromRGBO(255, 183, 3, 10)
-                              : const Color.fromARGB(255, 211, 207, 207),
-                        ),
+                            backgroundColor: !isTeacher
+                                ? Color.fromRGBO(0, 119, 182, 10)
+                                : Color.fromARGB(246, 233, 251, 255)),
                       ),
                     ],
                   ),
@@ -267,7 +273,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             ),
             Step(
-              title: Text(isTeacher ? 'Teacher Details' : 'Student Details'),
+              title: Text(isTeacher ? 'Teacher Details' : 'Industry Details'),
               isActive: _currentStep >= 2,
               content: isTeacher
                   ? Column(

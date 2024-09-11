@@ -67,4 +67,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'fir-8c176.appspot.com',
     iosBundleId: 'com.example.appTest',
   );
+
 }

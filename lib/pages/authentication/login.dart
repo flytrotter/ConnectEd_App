@@ -101,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 // logo
                 Image.asset(
-                  'assets/connected.png', // Make sure you put your logo file in assets and reference it here.
+                  'assets/Subheading.png', // Make sure you put your logo file in assets and reference it here.
                   width: 400,
                   height: 150,
                 ),

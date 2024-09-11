@@ -1,4 +1,5 @@
 import 'package:app_test/components/get_current_id.dart';
+import 'package:app_test/firebase_options.dart';
 import 'package:app_test/pages/industry/industry_home.dart';
 import 'package:app_test/pages/home.dart';
 import 'package:app_test/pages/authentication/login.dart';
@@ -12,13 +13,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   // Uncomment this if you want to handle background messages
   // FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
   runApp(MyApp());
@@ -37,6 +40,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: LoginPage(), //usually loginPage()
+
       navigatorKey: navigatorKey,
       routes: {
         '/register': (context) => SignUpPage(),
@@ -44,10 +48,11 @@ class _MyAppState extends State<MyApp> {
         '/teacherPage': (context) => TeacherHomePage(),
         '/industryPage': (context) => IndustryHome(),
         // '/schedulePage': (context) => SchedulePage()
-        '/savedPage': (context) => SavedUsers()
+        // '/savedPage': (context) => SavedUsers()
       },
       theme: ThemeData(
         primaryColor: Colors.blue[900],
+        textTheme: GoogleFonts.poppinsTextTheme(),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:app_test/pages/teacher/new_teacher_home.dart';
 import 'package:app_test/pages/teacher/saved_users.dart';
 import 'package:app_test/pages/teacher/teacher_scheduled_page.dart';
 import 'package:flutter/material.dart';
@@ -202,7 +203,7 @@ class _TeacherProfileState extends State<TeacherProfile> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => TeacherProfile()));
+                            builder: (context) => TeacherHomePage()));
                   }),
               // GButton(icon: Icons.settings, text: 'Settings'),
               GButton(
@@ -218,7 +219,7 @@ class _TeacherProfileState extends State<TeacherProfile> {
                 icon: Icons.favorite,
                 text: 'Saved',
                 onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/savedPage');
+                  // Navigator.pushReplacementNamed(context, '/savedPage');
                 },
               ),
               GButton(
