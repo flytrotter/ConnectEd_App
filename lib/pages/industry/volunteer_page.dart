@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app_test/components/get_current_id.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:share_plus/share_plus.dart';
@@ -9,9 +10,9 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:url_launcher/url_launcher.dart';
 
 class VolunteerPage extends StatefulWidget {
-  final String? industryUserId;
+  final String? industryUserId = getCurrentUserId();
 
-  VolunteerPage({required this.industryUserId});
+  VolunteerPage({super.key});
 
   @override
   _VolunteerPageState createState() => _VolunteerPageState();

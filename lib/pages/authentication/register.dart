@@ -52,6 +52,8 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController roleController = TextEditingController();
   final TextEditingController linkedInController = TextEditingController();
   final TextEditingController experienceController = TextEditingController();
+  final TextEditingController companyCodeController = TextEditingController();
+
   // final TextEditingController expertiseController = TextEditingController();
   final List<String> interests = [
     'Math 🧮',
@@ -337,6 +339,28 @@ class _SignUpPageState extends State<SignUpPage> {
                               ? 'Please describe your experience'
                               : null,
                         ),
+
+                        // Inside your widget (within your form)
+                        TextFormField(
+                          controller: companyCodeController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: 'Company Code',
+                            errorText: companyCodeController.text.isNotEmpty &&
+                                    companyCodeController.text != '1111'
+                                ? 'Incorrect Code'
+                                : null,
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a company code';
+                            } else if (value != '1111') {
+                              return 'Invalid Code';
+                            }
+                            return null;
+                          },
+                        ),
+
                         // TextFormField(
                         //   controller: expertiseController,
                         //   decoration:

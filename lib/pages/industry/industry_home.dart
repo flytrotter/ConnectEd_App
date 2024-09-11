@@ -1,6 +1,7 @@
 import 'package:app_test/components/get_current_id.dart';
 import 'package:app_test/components/get_current_name.dart';
 import 'package:app_test/components/uid_to_name.dart';
+import 'package:app_test/components/volunteer_snippet.dart';
 import 'package:app_test/pages/industry/approve_deny.dart';
 import 'package:app_test/pages/industry/create_events.dart';
 import 'package:app_test/pages/industry/edit_meeting_details.dart';
@@ -55,7 +56,7 @@ class _IndustryHomeState extends State<IndustryHome> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text('Welcome!', style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFF00b4d8),
         actions: [
           IconButton(
               onPressed: () {
@@ -68,7 +69,8 @@ class _IndustryHomeState extends State<IndustryHome> {
       body: Column(
         children: [
           // Search Bar
-          Padding(
+          Container(
+            color: Color(0xFF00b4d8),
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               onChanged: (value) {
@@ -77,10 +79,10 @@ class _IndustryHomeState extends State<IndustryHome> {
                 });
               },
               decoration: InputDecoration(
-                hintText: 'Search scheduled meetings...',
+                hintText: 'Search all meetings...',
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(30.0),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
@@ -88,6 +90,8 @@ class _IndustryHomeState extends State<IndustryHome> {
               ),
             ),
           ),
+          VolunteerSnippet(industryUserId: userId.toString()),
+
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -132,6 +136,112 @@ class _IndustryHomeState extends State<IndustryHome> {
                       padding: EdgeInsets.all(
                           16.0), // Padding around the main content
                       children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                spreadRadius: 1,
+                                blurRadius: 5,
+                              ),
+                            ],
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          margin: EdgeInsets.symmetric(vertical: 12.0),
+                          padding: EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Meeting Requests',
+                                style: TextStyle(
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 8),
+                              if (requests.isEmpty)
+                                Padding(
+                                  padding: EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    'No requests yet!',
+                                    style: TextStyle(color: Colors.grey[600]),
+                                  ),
+                                ),
+                              ...requests.map((request) {
+                                return FutureBuilder<String>(
+                                  future: getFullName(request['senderId']),
+                                  builder: (context, nameSnapshot) {
+                                    if (nameSnapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return ListTile(
+                                        title: Text('Loading name...'),
+                                      );
+                                    }
+                                    if (nameSnapshot.hasError) {
+                                      return ListTile(
+                                        title: Text('Error fetching name'),
+                                      );
+                                    }
+                                    String senderName =
+                                        nameSnapshot.data ?? 'Unknown';
+                                    return Card(
+                                      margin:
+                                          EdgeInsets.symmetric(vertical: 8.0),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12.0),
+                                      ),
+                                      elevation: 3,
+                                      child: ListTile(
+                                        contentPadding: EdgeInsets.symmetric(
+                                            horizontal: 16.0, vertical: 8.0),
+                                        leading: CircleAvatar(
+                                          radius: 24,
+                                          backgroundColor: getRandomColor(),
+                                          child: Icon(
+                                            Icons.person,
+                                            color: Colors.grey[600],
+                                            size: 24,
+                                          ),
+                                        ),
+                                        title: Text(
+                                          senderName,
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                        subtitle: Text(
+                                          request['note'].toString(),
+                                          style: TextStyle(
+                                              color: Colors.grey[700]),
+                                        ),
+                                        trailing: ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ApproveOrDenyPage(
+                                                  requestId:
+                                                      request.id.toString(),
+                                                  userId: userId.toString(),
+                                                  teacherId:
+                                                      request['senderId'],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Text('Respond'),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }).toList(),
+                            ],
+                          ),
+                        ),
                         // Section for Scheduled Meetings
                         Container(
                           decoration: BoxDecoration(
@@ -237,114 +347,6 @@ class _IndustryHomeState extends State<IndustryHome> {
                                             );
                                           },
                                           child: Text('Edit Details'),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              }).toList(),
-                            ],
-                          ),
-                        ),
-
-                        // Section for Meeting Requests
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                spreadRadius: 1,
-                                blurRadius: 5,
-                              ),
-                            ],
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          margin: EdgeInsets.symmetric(vertical: 12.0),
-                          padding: EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Meeting Requests',
-                                style: TextStyle(
-                                    fontSize: 20.0,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: 8),
-                              if (requests.isEmpty)
-                                Padding(
-                                  padding: EdgeInsets.only(top: 8.0),
-                                  child: Text(
-                                    'No requests yet!',
-                                    style: TextStyle(color: Colors.grey[600]),
-                                  ),
-                                ),
-                              ...requests.map((request) {
-                                return FutureBuilder<String>(
-                                  future: getFullName(request['senderId']),
-                                  builder: (context, nameSnapshot) {
-                                    if (nameSnapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return ListTile(
-                                        title: Text('Loading name...'),
-                                      );
-                                    }
-                                    if (nameSnapshot.hasError) {
-                                      return ListTile(
-                                        title: Text('Error fetching name'),
-                                      );
-                                    }
-                                    String senderName =
-                                        nameSnapshot.data ?? 'Unknown';
-                                    return Card(
-                                      margin:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                      ),
-                                      elevation: 3,
-                                      child: ListTile(
-                                        contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 16.0, vertical: 8.0),
-                                        leading: CircleAvatar(
-                                          radius: 24,
-                                          backgroundColor: getRandomColor(),
-                                          child: Icon(
-                                            Icons.person,
-                                            color: Colors.grey[600],
-                                            size: 24,
-                                          ),
-                                        ),
-                                        title: Text(
-                                          senderName,
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                        subtitle: Text(
-                                          request['note'].toString(),
-                                          style: TextStyle(
-                                              color: Colors.grey[700]),
-                                        ),
-                                        trailing: ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    ApproveOrDenyPage(
-                                                  requestId:
-                                                      request.id.toString(),
-                                                  userId: userId.toString(),
-                                                  teacherId:
-                                                      request['senderId'],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          child: Text('Respond'),
                                         ),
                                       ),
                                     );
