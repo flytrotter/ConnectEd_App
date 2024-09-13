@@ -420,6 +420,17 @@ class _IndustryHomeState extends State<IndustryHome> {
                   //           builder: (context) => industry()));
                 },
               ),
+
+              GButton(
+                icon: Icons.add,
+                text: 'Events',
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CreateEventsPage()));
+                },
+              ),
             ],
           ),
         ),
