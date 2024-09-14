@@ -1,6 +1,8 @@
+import 'package:app_test/components/get_current_name.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math'; // For random image selection
+import 'package:intl/intl.dart';
 
 class EventInfo extends StatelessWidget {
   final String eventId; // Pass the event ID to fetch event data
@@ -31,6 +33,19 @@ class EventInfo extends StatelessWidget {
     return assetImages[random.nextInt(assetImages.length)];
   }
 
+  String formatDateRange(
+      Timestamp startDateTime, String startTime, String endTime) {
+    // Parse the starting date and time
+    DateTime date = startDateTime.toDate();
+    String formattedDate = DateFormat('MMMM d, y').format(date);
+
+    // Format date in desired format: September 18, 2024
+    // Prepare final sentence
+    String result = '$formattedDate from $startTime to $endTime';
+
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
@@ -53,13 +68,19 @@ class EventInfo extends StatelessWidget {
         String eventName = eventData['event_name'];
         String hostName = eventData['created_by'];
         String description = eventData['description'];
+        Timestamp startDateTime = eventData['date'];
+        String startTime = eventData['start_time'];
+        String endTime = eventData['end_time'];
 
         String randomImage =
             getRandomImage(); // Select random image from assets
 
+        String formattedDate =
+            formatDateRange(startDateTime, startTime, endTime);
+
         return Card(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(35),
           ),
           elevation: 4,
           child: Column(
@@ -91,27 +112,18 @@ class EventInfo extends StatelessWidget {
                     SizedBox(height: 8),
                     // Host Name
                     Text(
-                      "Hosted by: $hostName",
+                      formattedDate,
                       style: TextStyle(
                         fontSize: 14,
+                        fontWeight: FontWeight.bold,
                         color: Colors.grey[700],
                       ),
                     ),
-                    SizedBox(height: 12),
-                    // Description (Truncated)
-                    Text(
-                      description,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[800],
-                      ),
-                    ),
+
                     SizedBox(height: 16),
                     // More Info Button
                     Align(
-                      alignment: Alignment.centerRight,
+                      alignment: Alignment.center,
                       child: ElevatedButton(
                         onPressed: () {
                           // Placeholder for "More Info" action

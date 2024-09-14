@@ -410,17 +410,16 @@ class _IndustryHomeState extends State<IndustryHome> {
                         MaterialPageRoute(
                             builder: (context) => IndustryProfilePage()));
                   }),
-              GButton(
-                icon: Icons.event,
-                text: 'Schedule',
-                onPressed: () {
-                  //   Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //           builder: (context) => industry()));
-                },
-              ),
 
+              GButton(
+                  icon: Icons.handshake,
+                  text: 'Volunteer',
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => VolunteerPage()));
+                  }),
               GButton(
                 icon: Icons.add,
                 text: 'Events',
