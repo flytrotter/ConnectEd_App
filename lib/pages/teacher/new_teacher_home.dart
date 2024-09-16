@@ -1,3 +1,4 @@
+import 'package:app_test/components/event_cards.dart';
 import 'package:app_test/components/saved_button.dart';
 import 'package:app_test/pages/teacher/more_info.dart';
 import 'package:app_test/pages/teacher/saved_users.dart';
@@ -139,6 +140,41 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                   ),
                 );
               }).toList(),
+            ),
+          ),
+
+          // Add the Event Gallery here
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            child: FutureBuilder<QuerySnapshot>(
+              future: FirebaseFirestore.instance.collection('events').get(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error fetching events'));
+                }
+
+                List<String> eventIds =
+                    snapshot.data!.docs.map((doc) => doc.id).toList();
+
+                // Display horizontally scrollable event cards
+                return SizedBox(
+                  height: 200, // Adjust height as needed
+                  child: PageView.builder(
+                    controller: PageController(viewportFraction: 0.85),
+                    itemCount: eventIds.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 0),
+                        child: EventCard(eventId: eventIds[index]),
+                      );
+                    },
+                  ),
+                );
+              },
             ),
           ),
 
