@@ -14,6 +14,7 @@ class _CreateEventFormState extends State<CreateEventForm> {
   // Form Fields
   String? _eventName;
   String? _description;
+  String? _meetLink;
   DateTime? _eventDate;
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
@@ -44,6 +45,7 @@ class _CreateEventFormState extends State<CreateEventForm> {
         'event_name': _eventName,
         'description': _description,
         'date': _eventDate,
+        'link': _meetLink,
         'start_time': _startTime!.format(context),
         'end_time': _endTime!.format(context),
         'created_by': currentUser.uid,
@@ -146,6 +148,22 @@ class _CreateEventFormState extends State<CreateEventForm> {
                   },
                   onSaved: (value) {
                     _description = value;
+                  },
+                  maxLines: 3,
+                ),
+                SizedBox(height: 16),
+
+                TextFormField(
+                  decoration:
+                      InputDecoration(labelText: 'Zoom/Google Meet Link'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the description';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    _meetLink = value;
                   },
                   maxLines: 3,
                 ),

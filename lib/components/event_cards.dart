@@ -1,3 +1,4 @@
+import 'package:app_test/pages/teacher/event_sign_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math'; // For random image selection
@@ -152,6 +153,14 @@ class EventCard extends StatelessWidget {
                                       size: 16,
                                     ),
                                     onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              EventSignUp(eventId: eventId),
+                                        ),
+                                      );
+
                                       // Handle Learn More action
                                     },
                                   ),
