@@ -53,6 +53,8 @@ dependencies:
   intl: ^0.17.0
   firebase_messaging: ^15.1.0
   firebase_in_app_messaging: ^0.8.0+5
+  google_generative_ai: ^0.4.6
+  multi_select_flutter: ^4.1.3
 
 dev_dependencies:
   flutter_test:
@@ -83,6 +85,8 @@ flutter:
     - assets/math.jpg
     - assets/cs.jpg
     - assets/Subheading.png
+    - assets/gmail.png
+    - assets/google_classroom.jpg
 
 
     

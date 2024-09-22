@@ -1,4 +1,5 @@
 import 'package:app_test/components/event_cards.dart';
+import 'package:app_test/components/generate_ai.dart';
 import 'package:app_test/components/saved_button.dart';
 import 'package:app_test/pages/teacher/more_info.dart';
 import 'package:app_test/pages/teacher/saved_users.dart';
@@ -204,6 +205,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                   final data = doc.data() as Map<String, dynamic>;
                   final fullName = "${data['first_name']} ${data['last_name']}"
                       .toLowerCase();
+                  final bio = data['experience'];
                   final jobTitle = data['job_title'].toLowerCase();
                   final companyName = data['company_name'].toLowerCase();
                   final interestsList = (data['interests'] as List<dynamic>)
@@ -283,6 +285,24 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                                     },
                                     child: Text('Request Meeting'),
                                   ),
+                                  SizedBox(height: 8.0),
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LessonPlanGenerator(
+                                                jobTitle:
+                                                    "${data['job_title']} ",
+                                                interestsList: data['interests']
+                                                    as List<dynamic>,
+                                                bio: data['experience'],
+                                                // userId: professional.id),
+                                              ),
+                                            ));
+                                      },
+                                      child: Icon(Icons.smart_toy)),
                                 ],
                               ),
                             ),
