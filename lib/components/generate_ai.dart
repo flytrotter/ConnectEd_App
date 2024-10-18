@@ -27,7 +27,7 @@ class _LessonPlanGeneratorState extends State<LessonPlanGenerator> {
   final _subjectController = TextEditingController();
   final _timeController = TextEditingController();
   final _messageController = TextEditingController();
-  final _apiKey = 'AIzaSyAx72fcPP3jc8cSAmmK5kMSfakjDjq4ouA';
+  final _apiKey = ;
 
   // Initialize the Gemini model
   late final GenerativeModel _model;
