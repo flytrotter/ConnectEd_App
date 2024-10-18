@@ -50,21 +50,21 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCsBpCwLSfOOMFt1oMpwoVCRfqfjkq6-3o',
-    appId: '1:561935540984:android:9113ac67435005ff78110d',
-    messagingSenderId: '561935540984',
-    projectId: 'fir-8c176',
-    databaseURL: 'https://fir-8c176-default-rtdb.firebaseio.com',
+    apiKey: '%API_KEY',
+    appId: '%APP_ID',
+    messagingSenderId: '%SENDER%',
+    projectId: '%PROJECT_ID%',
+    databaseURL: '%DATABASE_URL',
     storageBucket: 'fir-8c176.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDdqXi4aihq99hE7iWEIZnil5dYK8M8eM0',
-    appId: '1:561935540984:ios:b645a73f6210199c78110d',
-    messagingSenderId: '561935540984',
-    projectId: 'fir-8c176',
-    databaseURL: 'https://fir-8c176-default-rtdb.firebaseio.com',
-    storageBucket: 'fir-8c176.appspot.com',
+    apiKey: '%API_KEY%',
+    appId: '',
+    messagingSenderId: %MESSAGING%',
+    projectId: '%%',
+    databaseURL: '%URL%',
+    storageBucket: '%',
     iosBundleId: 'com.example.appTest',
   );
 
